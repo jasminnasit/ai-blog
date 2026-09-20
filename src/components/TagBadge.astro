@@ -1,0 +1,31 @@
+---
+// TagBadge.astro
+interface Props {
+  tag: string;
+  count?: number;
+  active?: boolean;
+}
+
+const { tag, count, active = false } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<a
+  href={`${base}/tags/${tag.toLowerCase()}`}
+  class={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-all ${
+    active
+      ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20 dark:bg-purple-500'
+      : 'bg-slate-100 text-slate-700 hover:bg-purple-50 hover:text-purple-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-purple-950/50 dark:hover:text-purple-300'
+  }`}
+>
+  <span>#{tag}</span>
+  {
+    count !== undefined && (
+      <span class={`ml-0.5 rounded-full px-1.5 py-0.2 text-[10px] ${
+        active ? 'bg-purple-700 text-purple-100 dark:bg-purple-600' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+      }`}>
+        {count}
+      </span>
+    )
+  }
+</a>

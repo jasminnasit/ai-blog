@@ -1,0 +1,77 @@
+---
+// TableOfContents.astro
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth > 1 && h.depth < 4);
+---
+
+{
+  filteredHeadings.length > 0 && (
+    <nav class="toc-container sticky top-24 rounded-2xl border border-slate-200/80 bg-white/70 p-5 shadow-sm backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-900/60">
+      <h2 class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-200">
+        <svg class="h-4 w-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+        Table of Contents
+      </h2>
+
+      <ul class="mt-4 space-y-2 text-xs">
+        {filteredHeadings.map((heading) => (
+          <li
+            class={`transition-colors ${
+              heading.depth === 3 ? 'pl-3.5 border-l border-slate-200 dark:border-slate-800' : ''
+            }`}
+          >
+            <a
+              href={`#${heading.slug}`}
+              class="toc-link block py-0.5 text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-300 transition-colors"
+              data-slug={heading.slug}
+            >
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}
+
+<script>
+  function setupTocHighlight() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.getAttribute('id');
+          const link = document.querySelector(`.toc-link[data-slug="${id}"]`);
+          if (!link) return;
+
+          if (entry.isIntersecting) {
+            document.querySelectorAll('.toc-link').forEach((el) => {
+              el.classList.remove('text-purple-600', 'dark:text-purple-400', 'font-semibold');
+              el.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+            link.classList.remove('text-slate-600', 'dark:text-slate-400');
+            link.classList.add('text-purple-600', 'dark:text-purple-400', 'font-semibold');
+          }
+        });
+      },
+      { rootMargin: '-80px 0% -60% 0%', threshold: 0.1 }
+    );
+
+    document.querySelectorAll('article h2, article h3').forEach((heading) => {
+      observer.observe(heading);
+    });
+  }
+
+  setupTocHighlight();
+  document.addEventListener('astro:after-swap', setupTocHighlight);
+</script>

@@ -1,0 +1,181 @@
+---
+// SearchModal.astro
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<!-- Search Trigger Button (desktop/mobile) -->
+<button
+  id="search-trigger"
+  type="button"
+  aria-label="Search articles"
+  class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 transition hover:border-slate-300 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-100"
+>
+  <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+  </svg>
+  <span class="hidden sm:inline">Search articles...</span>
+  <kbd class="hidden rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 sm:inline dark:bg-slate-800 dark:text-slate-400">⌘K</kbd>
+</button>
+
+<!-- Search Modal Backdrop -->
+<div
+  id="search-modal"
+  class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-950/60 p-4 pt-16 backdrop-blur-sm sm:pt-24"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-slate-800 dark:bg-slate-900"
+  >
+    <!-- Search Input Header -->
+    <div class="flex items-center border-b border-slate-200 px-4 py-3 dark:border-slate-800">
+      <svg class="mr-3 h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Type to search AI articles, tags, topics..."
+        class="w-full bg-transparent text-sm text-slate-900 placeholder-slate-400 focus:outline-none dark:text-slate-100 dark:placeholder-slate-500"
+        autocomplete="off"
+      />
+      <button
+        id="search-close"
+        type="button"
+        class="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search Results Container -->
+    <div id="search-results" class="max-h-96 overflow-y-auto p-2">
+      <div id="search-placeholder" class="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        Search by title, description, or #tag (e.g., <span class="text-purple-600 dark:text-purple-400 font-medium">Agents</span>, <span class="text-purple-600 dark:text-purple-400 font-medium">RAG</span>, <span class="text-purple-600 dark:text-purple-400 font-medium">LLM</span>)
+      </div>
+      <ul id="results-list" class="hidden space-y-1"></ul>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ base }}>
+  let postsData = [];
+  let isFetching = false;
+
+  async function loadSearchData() {
+    if (postsData.length > 0 || isFetching) return;
+    isFetching = true;
+    try {
+      const res = await fetch(`${base}/api/search.json`);
+      if (res.ok) {
+        postsData = await res.json();
+      }
+    } catch (e) {
+      console.error('Failed to load search data:', e);
+    } finally {
+      isFetching = false;
+    }
+  }
+
+  function setupSearchModal() {
+    const trigger = document.getElementById('search-trigger');
+    const modal = document.getElementById('search-modal');
+    const closeBtn = document.getElementById('search-close');
+    const input = document.getElementById('search-input');
+    const resultsList = document.getElementById('results-list');
+    const placeholder = document.getElementById('search-placeholder');
+
+    if (!trigger || !modal || !closeBtn || !input) return;
+
+    function openModal() {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      input.value = '';
+      resultsList.innerHTML = '';
+      resultsList.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+      loadSearchData();
+      setTimeout(() => input.focus(), 50);
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    trigger.onclick = openModal;
+    closeBtn.onclick = closeModal;
+
+    modal.onclick = (e) => {
+      if (e.target === modal) closeModal();
+    };
+
+    // Keyboard shortcut: CMD+K or CTRL+K
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        if (modal.classList.contains('hidden')) {
+          openModal();
+        } else {
+          closeModal();
+        }
+      }
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    input.oninput = () => {
+      const query = input.value.trim().toLowerCase();
+      if (!query) {
+        resultsList.innerHTML = '';
+        resultsList.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        return;
+      }
+
+      placeholder.classList.add('hidden');
+      resultsList.classList.remove('hidden');
+
+      const matches = postsData.filter((post) => {
+        const inTitle = post.title.toLowerCase().includes(query);
+        const inDesc = post.description.toLowerCase().includes(query);
+        const inTags = post.tags && post.tags.some((t) => t.toLowerCase().includes(query));
+        return inTitle || inDesc || inTags;
+      });
+
+      if (matches.length === 0) {
+        resultsList.innerHTML = `
+          <li class="p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+            No articles found matching "<span class="font-semibold text-slate-800 dark:text-slate-200">${query}</span>"
+          </li>
+        `;
+        return;
+      }
+
+      resultsList.innerHTML = matches
+        .map(
+          (post) => `
+          <li>
+            <a
+              href="${base}/blog/${post.slug}"
+              class="flex flex-col gap-1 rounded-xl p-3 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">${post.title}</span>
+                <span class="text-[10px] text-purple-600 dark:text-purple-400 font-medium">${post.category || 'Article'}</span>
+              </div>
+              <p class="line-clamp-1 text-xs text-slate-500 dark:text-slate-400">${post.description}</p>
+            </a>
+          </li>
+        `
+        )
+        .join('');
+    };
+  }
+
+  setupSearchModal();
+  document.addEventListener('astro:after-swap', setupSearchModal);
+</script>

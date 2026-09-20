@@ -1,0 +1,105 @@
+---
+// Footer.astro
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="mt-auto border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+  <div class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-4">
+
+      <!-- Brand & Mission -->
+      <div class="space-y-3 md:col-span-2">
+        <div class="flex items-center gap-2">
+          <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white font-bold text-xs">
+            N
+          </div>
+          <span class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
+            Nexus<span class="text-purple-600 dark:text-purple-400">.AI</span>
+          </span>
+        </div>
+        <p class="max-w-md text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+          Open engineering insights, autonomous agent architectures, RAG optimization, and AI systems research written by developers, for developers.
+        </p>
+        <div class="flex items-center gap-3 pt-2">
+          <a
+            href={`${base}/rss.xml`}
+            class="inline-flex items-center gap-1 text-xs font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+          >
+            <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+            </svg>
+            RSS Feed
+          </a>
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <a
+            href={`${base}/sitemap-index.xml`}
+            class="text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          >
+            XML Sitemap
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Navigation -->
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">Navigation</h3>
+        <ul class="mt-4 space-y-2.5 text-sm">
+          <li>
+            <a href={`${base}/`} class="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition">
+              Home
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/blog`} class="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition">
+              All Articles
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/tags`} class="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition">
+              Topics & Tags
+            </a>
+          </li>
+          <li>
+            <a href={`${base}/about`} class="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 transition">
+              About the Author
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Technology Stack -->
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-200">Built With</h3>
+        <ul class="mt-4 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
+          <li class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-purple-500"></span>
+            Astro 5 & Content Collections
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-cyan-500"></span>
+            Tailwind CSS & Typography
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            GitHub Actions & Pages
+          </li>
+          <li class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+            Shiki Syntax Highlighting
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-8 sm:flex-row dark:border-slate-800/80">
+      <p class="text-xs text-slate-500 dark:text-slate-400">
+        © {currentYear} Nexus AI. Published by <a href="https://github.com/jasminnasit" class="font-medium text-slate-700 hover:text-purple-600 dark:text-slate-300 dark:hover:text-purple-400">Jasmin Nasit</a>.
+      </p>
+      <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+        <span>Hosted on GitHub Pages</span>
+      </div>
+    </div>
+  </div>
+</footer>
